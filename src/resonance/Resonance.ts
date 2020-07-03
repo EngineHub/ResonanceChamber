@@ -1,10 +1,14 @@
 import {Request} from "express";
 import {WebhookData} from "../simple-discord-webhooks/Webhook";
 
-export abstract class Resonance {
-    protected constructor(
-        public readonly route: string,
-        public readonly hookTarget: string,
+export interface ResonanceData {
+    readonly route: string,
+    readonly hookTarget: string,
+}
+
+export abstract class Resonance<D extends ResonanceData = ResonanceData> {
+    constructor(
+        public readonly data: D
     ) {
     }
 

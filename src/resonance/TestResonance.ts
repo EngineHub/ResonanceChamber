@@ -1,20 +1,15 @@
 import {Request} from "express";
 import {WebhookData} from "../simple-discord-webhooks/Webhook";
-import {Resonance} from "./Resonance";
+import {Resonance, ResonanceData} from "./Resonance";
 
-export class TestResonance extends Resonance {
+export interface TestResonanceData extends ResonanceData {
+    readonly secret: string
+}
 
-    constructor(
-        route: string,
-        hookTarget: string,
-        private readonly secret: string,
-    ) {
-        super(route, hookTarget);
-    }
-
+export class TestResonance extends Resonance<TestResonanceData> {
     async resonate(req: Request): Promise<WebhookData | "rejected" | "ignored"> {
         const {secret} = req.query;
-        if (secret !== this.secret) {
+        if (secret !== this.data.secret) {
             return "rejected";
         }
         return {

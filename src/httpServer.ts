@@ -2,9 +2,7 @@ import * as crypto from "crypto";
 import express, {Express, Response, Router} from "express";
 import http from "http";
 import {exit} from "process";
-import {Resonance} from "./resonance/Resonance";
-import {TestResonance} from "./resonance/TestResonance";
-import webhookSecrets from "./secrets/webhook.json";
+import {RESONANCES} from "./secrets/webhooks";
 import {executeWebhook, WebhookData} from "./simple-discord-webhooks/Webhook";
 
 export function startHttpServer(port: number): void {
@@ -26,15 +24,11 @@ export function startHttpServer(port: number): void {
     server.listen(port);
 }
 
-const resonances: Resonance[] = [
-    new TestResonance("/test", webhookSecrets.test.target, webhookSecrets.test.secret)
-];
-
 function setupRouting(app: Express): void {
     const webhooks = Router();
     const seenRoutes = new Set<string>();
-    resonances.forEach(resonance => {
-        const route = resonance.route;
+    RESONANCES.forEach(resonance => {
+        const route = resonance.data.route;
         if (seenRoutes.has(route)) {
             throw new Error(`Duplicate route ${route}`);
         }
@@ -51,7 +45,7 @@ function setupRouting(app: Express): void {
                 });
                 return;
             }
-            await safeExecuteWebhook(res, resonance.hookTarget, result);
+            await safeExecuteWebhook(res, resonance.data.hookTarget, result);
         });
     });
 
