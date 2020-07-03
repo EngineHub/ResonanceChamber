@@ -2,6 +2,8 @@ import * as crypto from "crypto";
 import express, {Express, Response, Router} from "express";
 import http from "http";
 import {exit} from "process";
+import {Resonance} from "./resonance/Resonance";
+import {TestResonance} from "./resonance/TestResonance";
 import webhookSecrets from "./secrets/webhook.json";
 import {executeWebhook, WebhookData} from "./simple-discord-webhooks/Webhook";
 
@@ -24,20 +26,32 @@ export function startHttpServer(port: number): void {
     server.listen(port);
 }
 
+const resonances: Resonance[] = [
+    new TestResonance("/test", webhookSecrets.test.target, webhookSecrets.test.secret)
+];
+
 function setupRouting(app: Express): void {
     const webhooks = Router();
-    webhooks.get("/test", async (req, res) => {
-        const {secret} = req.query;
-        if (secret != webhookSecrets.test.secret) {
-            res.status(401).send("You don't know the answer!\n");
-            return;
+    const seenRoutes = new Set<string>();
+    resonances.forEach(resonance => {
+        const route = resonance.route;
+        if (seenRoutes.has(route)) {
+            throw new Error(`Duplicate route ${route}`);
         }
-        await safeExecuteWebhook(res, webhookSecrets.test.target, {
-            content: "Test success!",
-            embeds: [{
-                title: "This is a test",
-                description: "I am testing a webhook. Thanks!",
-            }],
+        webhooks.get(route, async (req, res) => {
+            const result = await resonance.resonate(req);
+            if (result === "ignored") {
+                // Not a call we care about
+                res.status(204).send();
+                return;
+            }
+            if (result === "rejected") {
+                res.status(401).json({
+                    error: "Rejected, you don't know the answer!"
+                });
+                return;
+            }
+            await safeExecuteWebhook(res, resonance.hookTarget, result);
         });
     });
 
@@ -50,13 +64,13 @@ async function safeExecuteWebhook(res: Response, target: string, data: WebhookDa
     } catch (e) {
         const errorId = crypto.randomBytes(10).toString("hex");
         console.warn(errorId, e);
-        res.status(500).send(JSON.stringify({
+        res.status(500).json({
             id: errorId,
             error: "I was unable to execute the webhook.",
-        }));
+        });
         return;
     }
-    res.send(JSON.stringify({
+    res.json({
         message: "I've contacted the Discord Servers. Thanks!",
-    }));
+    });
 }
