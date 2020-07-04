@@ -19,15 +19,16 @@ export class SecureGithubResonance extends Resonance {
 
     async resonate(req: Request): Promise<WebhookData | "ignored"> {
         const signature = req.get("X-Hub-Signature");
-        if (!signature.trim()) {
+        if (!signature.trim() || !signature.includes('=')) {
             throw new UnauthorizedError("No X-Hub-Signature provided, insecure request.");
         }
         if (typeof req.rawBody === "undefined") {
             throw new UnauthorizedError("Body unavailable, cannot verify");
         }
-        const hmac = crypto.createHmac("sha1", this.secret);
+        const [hash, signatureDigest] = signature.split('=', 2);
+        const hmac = crypto.createHmac(hash, this.secret);
         const digest = hmac.update(req.rawBody).digest("hex");
-        if (digest !== signature) {
+        if (digest !== signatureDigest) {
             throw new UnauthorizedError("Signature does not match digest");
         }
         return this.downstream.resonate(req);
