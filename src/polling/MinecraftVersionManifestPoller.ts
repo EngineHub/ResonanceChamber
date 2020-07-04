@@ -4,7 +4,7 @@ import {SECRETS} from "../secrets/webhooks";
 import {WebhookData} from "../simple-discord-webhooks/Webhook";
 import {Poller} from "./Poller";
 
-const VERSION_MANIFEST_URL = "http://0.0.0.0:8000/version_manifest.json";
+const VERSION_MANIFEST_URL = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
 
 const LATEST_DB_KEY = "launcher.meta.latest";
 
