@@ -8,7 +8,7 @@ import {readJson} from "./middleware/read-json";
 import {SECRETS} from "./secrets/webhooks";
 import {executeWebhook, WebhookData} from "./simple-discord-webhooks/Webhook";
 
-export function startHttpServer(port: number): void {
+export function startHttpServer(port: number, host: string): void {
     console.info("Creating HTTP server...");
 
     const app = new Koa();
@@ -33,7 +33,7 @@ export function startHttpServer(port: number): void {
         }
     });
 
-    server.listen(port);
+    server.listen(port, host);
 }
 
 function setupRouting(): Router {
