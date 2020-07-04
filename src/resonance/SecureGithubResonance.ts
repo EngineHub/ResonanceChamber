@@ -22,11 +22,11 @@ export class SecureGithubResonance extends Resonance {
         if (typeof signature !== "string") {
             throw new UnauthorizedError("No X-Hub-Signature provided, insecure request.");
         }
-        if (!(req.body instanceof Buffer)) {
+        if (typeof req.rawBody === "undefined") {
             throw new UnauthorizedError("Body unavailable, cannot verify");
         }
         const hmac = crypto.createHmac("sha1", this.secret);
-        const digest = hmac.update(req.body).digest("hex");
+        const digest = hmac.update(req.rawBody).digest("hex");
         if (digest !== signature) {
             throw new UnauthorizedError("Signature does not match digest");
         }

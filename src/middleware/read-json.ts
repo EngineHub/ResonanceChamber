@@ -4,8 +4,8 @@ import {BadRequestError, UnsupportedMediaTypeError} from "./error";
 
 declare module "koa" {
     interface Request {
-        body: unknown;
-        rawBody: Buffer;
+        body?: unknown;
+        rawBody?: Buffer;
     }
 }
 
