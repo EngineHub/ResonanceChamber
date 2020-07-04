@@ -5,7 +5,7 @@ import http from "http";
 import json from "koa-json";
 import {exit} from "process";
 import {readJson} from "./middleware/read-json";
-import {RESONANCES} from "./secrets/webhooks";
+import {SECRETS} from "./secrets/webhooks";
 import {executeWebhook, WebhookData} from "./simple-discord-webhooks/Webhook";
 
 export function startHttpServer(port: number): void {
@@ -41,7 +41,7 @@ function setupRouting(): Router {
         prefix: "/webhooks"
     });
     const seenRoutes = new Set<string>();
-    RESONANCES.forEach(resonance => {
+    SECRETS.resonances.forEach(resonance => {
         const route = resonance.data.route;
         if (seenRoutes.has(route)) {
             throw new Error(`Duplicate route ${route}`);

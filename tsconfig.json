@@ -13,12 +13,9 @@
     "noImplicitReturns": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "typeRoots": [
-      "./typings"
-    ],
-    "types": [
-      "node"
-    ],
+    "paths": {
+      "*": ["./typings/*"]
+    },
     "lib": [
       "es6",
       "es5",

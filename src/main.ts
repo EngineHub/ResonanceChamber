@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import yargs from "yargs";
 import {startHttpServer} from "./httpServer";
+import {startPollManager} from "./pollManager";
 
 const args = yargs
     .option("port", {
@@ -13,9 +14,5 @@ const args = yargs
     .version(false)
     .parse();
 
-
-async function main(): Promise<void> {
-    startHttpServer(args.port);
-}
-
-main().catch(err => console.error(err));
+startHttpServer(args.port);
+startPollManager();
