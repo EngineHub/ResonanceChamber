@@ -29,6 +29,7 @@ export function readJson(): Middleware {
         try {
             const str = rawBody.toString(charset);
             ctx.request.body = JSON.parse(str);
+            ctx.request.rawBody = rawBody;
         } catch (e) {
             if (e instanceof SyntaxError) {
                 throw new BadRequestError("Invalid JSON syntax");
