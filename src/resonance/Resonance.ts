@@ -1,9 +1,9 @@
-import {Request} from "express";
+import {Request} from "koa";
 import {WebhookData} from "../simple-discord-webhooks/Webhook";
 
 export interface ResonanceData {
-    readonly route: string,
-    readonly hookTarget: string,
+    readonly route: string;
+    readonly hookTarget: string;
 }
 
 export abstract class Resonance<D extends ResonanceData = ResonanceData> {
@@ -12,5 +12,5 @@ export abstract class Resonance<D extends ResonanceData = ResonanceData> {
     ) {
     }
 
-    abstract async resonate(req: Request): Promise<WebhookData | "rejected" | "ignored">
+    abstract async resonate(req: Request): Promise<WebhookData | "ignored">
 }

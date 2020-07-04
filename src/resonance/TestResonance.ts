@@ -1,4 +1,5 @@
-import {Request} from "express";
+import {Request} from "koa";
+import {UnauthorizedError} from "../middleware/error";
 import {WebhookData} from "../simple-discord-webhooks/Webhook";
 import {Resonance, ResonanceData} from "./Resonance";
 
@@ -7,10 +8,10 @@ export interface TestResonanceData extends ResonanceData {
 }
 
 export class TestResonance extends Resonance<TestResonanceData> {
-    async resonate(req: Request): Promise<WebhookData | "rejected" | "ignored"> {
-        const {secret} = req.query;
+    async resonate(req: Request): Promise<WebhookData | "ignored"> {
+        const secret = req.get("X-Secret");
         if (secret !== this.data.secret) {
-            return "rejected";
+            throw new UnauthorizedError("You don't know the secret!");
         }
         return {
             content: "Test success!",

@@ -1,15 +1,27 @@
+import Router from "@koa/router";
 import * as crypto from "crypto";
-import express, {Express, Response, Router} from "express";
+import Koa, {Response} from "koa";
 import http from "http";
+import json from "koa-json";
 import {exit} from "process";
+import {readJson} from "./middleware/read-json";
 import {RESONANCES} from "./secrets/webhooks";
 import {executeWebhook, WebhookData} from "./simple-discord-webhooks/Webhook";
 
 export function startHttpServer(port: number): void {
     console.info("Creating HTTP server...");
-    const app = express();
-    setupRouting(app);
-    const server = http.createServer(app);
+
+    const app = new Koa();
+
+    app.use(json());
+
+    app.use(readJson());
+
+    const router = setupRouting();
+    app.use(router.routes());
+    app.use(router.allowedMethods());
+
+    const server = http.createServer(app.callback());
 
     server.on("listening", () => {
         console.info(`HTTP Server is listening on port ${port}`);
@@ -24,32 +36,29 @@ export function startHttpServer(port: number): void {
     server.listen(port);
 }
 
-function setupRouting(app: Express): void {
-    const webhooks = Router();
+function setupRouting(): Router {
+    const router = new Router({
+        prefix: "/webhooks"
+    });
     const seenRoutes = new Set<string>();
     RESONANCES.forEach(resonance => {
         const route = resonance.data.route;
         if (seenRoutes.has(route)) {
             throw new Error(`Duplicate route ${route}`);
         }
-        webhooks.get(route, async (req, res) => {
-            const result = await resonance.resonate(req);
+        router.post(route, async (ctx) => {
+            const res = ctx.response;
+            const result = await resonance.resonate(ctx.request);
             if (result === "ignored") {
                 // Not a call we care about
-                res.status(204).send();
-                return;
-            }
-            if (result === "rejected") {
-                res.status(401).json({
-                    error: "Rejected, you don't know the answer!"
-                });
+                res.status = 204;
                 return;
             }
             await safeExecuteWebhook(res, resonance.data.hookTarget, result);
         });
     });
 
-    app.use("/webhooks", webhooks);
+    return router;
 }
 
 async function safeExecuteWebhook(res: Response, target: string, data: WebhookData): Promise<void> {
@@ -58,13 +67,15 @@ async function safeExecuteWebhook(res: Response, target: string, data: WebhookDa
     } catch (e) {
         const errorId = crypto.randomBytes(10).toString("hex");
         console.warn(errorId, e);
-        res.status(500).json({
+        res.status = 500;
+        res.body = {
             id: errorId,
             error: "I was unable to execute the webhook.",
-        });
+        };
         return;
     }
-    res.json({
+    res.status = 200;
+    res.body = {
         message: "I've contacted the Discord Servers. Thanks!",
-    });
+    };
 }
