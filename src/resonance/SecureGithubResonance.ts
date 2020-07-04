@@ -18,8 +18,8 @@ export class SecureGithubResonance extends Resonance {
     }
 
     async resonate(req: Request): Promise<WebhookData | "ignored"> {
-        const signature = req.header("X-Hub-Signature");
-        if (typeof signature !== "string") {
+        const signature = req.get("X-Hub-Signature");
+        if (!signature.trim()) {
             throw new UnauthorizedError("No X-Hub-Signature provided, insecure request.");
         }
         if (typeof req.rawBody === "undefined") {
