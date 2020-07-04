@@ -20,8 +20,11 @@ async function tryPoll(poller: Poller): Promise<boolean> {
             delayFirstAttempt: true,
             startingDelay: poller.data.periodMillis,
             jitter: "full",
-            // We have no real reason to stop using this function as we keep error-ing, so bump this
-            numOfAttempts: 50,
+            retry(e: unknown, attemptNumber: number): boolean {
+                // Do not log the error here for cleaner logs
+                console.warn(`[${poller.data.name}] Retrying due to error (attempt ${attemptNumber})`);
+                return true;
+            }
         });
         return true;
     } catch (e) {
