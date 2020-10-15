@@ -7,6 +7,7 @@ import {exit} from "process";
 import {readJson} from "./middleware/read-json";
 import {SECRETS} from "./secrets/webhooks";
 import {executeWebhook, WebhookData} from "./simple-discord-webhooks/Webhook";
+import {getSavedLatestVersions} from "./polling/MinecraftVersionManifestPoller";
 
 export function startHttpServer(port: number, host: string): void {
     console.info("Creating HTTP server...");
@@ -49,16 +50,14 @@ export function startHttpServer(port: number, host: string): void {
 }
 
 function setupRouting(): Router {
-    const router = new Router({
-        prefix: "/webhooks"
-    });
+    const webhooks = new Router();
     const seenRoutes = new Set<string>();
     SECRETS.resonances.forEach(resonance => {
         const route = resonance.data.route;
         if (seenRoutes.has(route)) {
             throw new Error(`Duplicate route ${route}`);
         }
-        router.post(route, async (ctx) => {
+        webhooks.post(route, async (ctx) => {
             const res = ctx.response;
             const result = await resonance.resonate(ctx.request);
             if (result === "ignored") {
@@ -68,6 +67,16 @@ function setupRouting(): Router {
             }
             await safeExecuteWebhook(res, resonance.data.hookTarget, result);
         });
+    });
+
+    const router = new Router();
+    router.use("/webhooks", webhooks.routes(), webhooks.allowedMethods());
+    router.get("/latest-mc-versions-recorded", async (ctx) => {
+        const versions = await getSavedLatestVersions();
+        ctx.response.status = 200;
+        ctx.response.body = {
+            versions
+        };
     });
 
     return router;

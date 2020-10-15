@@ -21,9 +21,13 @@ async function handleChange(saved: LatestVersions,
     };
 }
 
+export async function getSavedLatestVersions(): Promise<LatestVersions | undefined> {
+    return getOrDefault<LatestVersions>(SECRETS.db, LATEST_DB_KEY);
+}
+
 export class MinecraftVersionManifestPoller extends Poller {
     async poll(): Promise<WebhookData | "ignored"> {
-        const savedLatest = await getOrDefault<LatestVersions>(SECRETS.db, LATEST_DB_KEY);
+        const savedLatest = await getSavedLatestVersions();
         const {latest: currentLatest} = (await axios.get(VERSION_MANIFEST_URL)).data as VersionManifest;
 
         if (typeof savedLatest === "undefined") {
@@ -45,7 +49,7 @@ interface VersionManifest {
     latest: LatestVersions
 }
 
-interface LatestVersions {
+export interface LatestVersions {
     release: string
     snapshot: string
 }
