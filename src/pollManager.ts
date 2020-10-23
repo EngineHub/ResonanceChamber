@@ -1,31 +1,10 @@
-import {backOff} from "exponential-backoff";
 import {Poller} from "./polling/Poller";
 import {SECRETS} from "./secrets/webhooks";
-import {executeWebhook} from "./simple-discord-webhooks/Webhook";
-
-function runPoller(poller: Poller) {
-    return async (): Promise<void> => {
-        const data = await poller.poll();
-        if (data === "ignored") {
-            return;
-        }
-        await executeWebhook(poller.data.hookTarget, data);
-        console.info(`[${poller.data.name}] Sent webhook message to Discord!`);
-    };
-}
+import {pollerAwareBackOff} from "./polling/poller-aware-back-off";
 
 async function tryPoll(poller: Poller): Promise<boolean> {
     try {
-        await backOff(runPoller(poller), {
-            delayFirstAttempt: true,
-            startingDelay: poller.data.periodMillis,
-            jitter: "full",
-            retry(e: unknown, attemptNumber: number): boolean {
-                // Do not log the error here for cleaner logs
-                console.warn(`[${poller.data.name}] Retrying due to error (attempt ${attemptNumber})`);
-                return true;
-            }
-        });
+        await pollerAwareBackOff(poller);
         return true;
     } catch (e) {
         console.warn(`[${poller.data.name}] Error during processing`, e);
