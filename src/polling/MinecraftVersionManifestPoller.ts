@@ -41,6 +41,7 @@ export class MinecraftVersionManifestPoller extends Poller {
         if (savedLatest.snapshot !== currentLatest.snapshot) {
             return handleChange(savedLatest, currentLatest, "snapshot");
         }
+        console.log(`[${this.data.name}] Polled ${JSON.stringify(currentLatest)} from Mojang`);
         return "ignored";
     }
 }
