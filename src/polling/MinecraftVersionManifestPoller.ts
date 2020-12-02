@@ -28,7 +28,7 @@ export async function getSavedLatestVersions(): Promise<LatestVersions | undefin
 export class MinecraftVersionManifestPoller extends Poller {
     async poll(): Promise<WebhookData | "ignored"> {
         const savedLatest = await getSavedLatestVersions();
-        const {latest: currentLatest} = (await axios.get(VERSION_MANIFEST_URL)).data as VersionManifest;
+        const {latest: currentLatest} = (await axios.get(VERSION_MANIFEST_URL, {timeout: 1000})).data as VersionManifest;
 
         if (typeof savedLatest === "undefined") {
             await SECRETS.db.put(LATEST_DB_KEY, currentLatest);

@@ -41,6 +41,7 @@ export async function executeWebhook(target: string, data: WebhookData): Promise
             allowed_mentions: data.allowedMentions,
         },
         {
+            timeout: 5000,
             headers: {
                 "Content-type": "application/json",
             },
