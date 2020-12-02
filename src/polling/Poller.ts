@@ -12,5 +12,5 @@ export abstract class Poller {
     ) {
     }
 
-    abstract async poll(): Promise<WebhookData | "ignored">
+    abstract poll(): Promise<WebhookData | "ignored">
 }

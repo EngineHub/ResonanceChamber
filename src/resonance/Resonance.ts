@@ -12,5 +12,5 @@ export abstract class Resonance<D extends ResonanceData = ResonanceData> {
     ) {
     }
 
-    abstract async resonate(req: Request): Promise<WebhookData | "ignored">
+    abstract resonate(req: Request): Promise<WebhookData | "ignored">
 }
