@@ -4,7 +4,7 @@
   "description": "Receives webhooks, processes the ones it knows about and forwards them to another webhook.",
   "dependencies": {
     "@koa/router": "^10.0.0",
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "koa": "^2.13.0",
     "koa-json": "^2.0.2",
     "level": "^6.0.1",
