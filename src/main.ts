@@ -19,7 +19,7 @@ const args = yargs
             default: "localhost"
     })
     .version(false)
-    .parse();
+    .parseSync();
 
 startHttpServer(args.port, args.host);
 startPollManager();

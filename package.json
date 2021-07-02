@@ -5,26 +5,26 @@
   "dependencies": {
     "@koa/router": "^10.0.0",
     "axios": "^0.21.1",
-    "koa": "^2.13.0",
+    "koa": "^2.13.1",
     "koa-json": "^2.0.2",
-    "level": "^6.0.1",
+    "level": "^7.0.0",
     "raw-body": "^2.4.1",
-    "yargs": "^16.1.1"
+    "yargs": "^17.0.1"
   },
   "devDependencies": {
     "@types/encoding-down": "^5.0.0",
-    "@types/koa": "^2.11.6",
+    "@types/koa": "^2.13.3",
+    "@types/koa__router": "^8.0.4",
     "@types/koa-json": "^2.0.18",
-    "@types/koa__router": "^8.0.3",
     "@types/leveldown": "^4.0.2",
-    "@types/levelup": "^4.3.0",
-    "@types/node": "^14.14.10",
-    "@types/yargs": "^15.0.11",
-    "@typescript-eslint/eslint-plugin": "^4.9.0",
-    "@typescript-eslint/parser": "^4.9.0",
-    "eslint": "^7.14.0",
-    "tslib": "^2.0.3",
-    "typescript": "^4.1.2"
+    "@types/levelup": "^4.3.2",
+    "@types/node": "^14.17.4",
+    "@types/yargs": "^17.0.1",
+    "@typescript-eslint/eslint-plugin": "^4.28.1",
+    "@typescript-eslint/parser": "^4.28.1",
+    "eslint": "^7.29.0",
+    "tslib": "^2.3.0",
+    "typescript": "^4.3.5"
   },
   "scripts": {
     "dev": "ENV=dev ./build.sh",
