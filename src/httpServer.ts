@@ -6,7 +6,7 @@ import json from "koa-json";
 import {exit} from "process";
 import {readJson} from "./middleware/read-json";
 import {SECRETS} from "./secrets/webhooks";
-import {executeWebhook, WebhookData} from "./simple-discord-webhooks/Webhook";
+import {executeWebhook} from "./simple-discord-webhooks/Webhook";
 import {getSavedLatestVersions} from "./polling/MinecraftVersionManifestPoller";
 import {executeMuffler} from "./muffler/Muffler";
 
