@@ -8,6 +8,7 @@ import {readJson} from "./middleware/read-json";
 import {SECRETS} from "./secrets/webhooks";
 import {executeWebhook, WebhookData} from "./simple-discord-webhooks/Webhook";
 import {getSavedLatestVersions} from "./polling/MinecraftVersionManifestPoller";
+import {executeMuffler} from "./muffler/Muffler";
 
 export function startHttpServer(port: number, host: string): void {
     console.info("Creating HTTP server...");
@@ -65,7 +66,23 @@ function setupRouting(): Router {
                 res.status = 204;
                 return;
             }
-            await safeExecuteWebhook(res, resonance.data.hookTarget, result);
+            await safeExecuteFunction(res, () => executeWebhook(resonance.data.hookTarget, result));
+        });
+    });
+    SECRETS.mufflers.forEach(muffler => {
+        const route = muffler.data.route;
+        if (seenRoutes.has(route)) {
+            throw new Error(`Duplicate route ${route}`);
+        }
+        webhooks.post(route, async (ctx) => {
+            const res = ctx.response;
+            const result = await muffler.muffle(ctx.request);
+            if (result === "ignored") {
+                // Not a call we care about
+                res.status = 204;
+                return;
+            }
+            await safeExecuteFunction(res, () => executeMuffler(muffler.data.hookTarget, result));
         });
     });
 
@@ -82,9 +99,9 @@ function setupRouting(): Router {
     return router;
 }
 
-async function safeExecuteWebhook(res: Response, target: string, data: WebhookData): Promise<void> {
+async function safeExecuteFunction(res: Response, func: () => Promise<void>): Promise<void> {
     try {
-        await executeWebhook(target, data);
+        await func();
     } catch (e) {
         const errorId = crypto.randomBytes(10).toString("hex");
         console.warn(errorId, e);

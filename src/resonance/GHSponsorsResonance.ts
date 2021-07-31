@@ -1,7 +1,7 @@
 import {Request} from "koa";
 import {WebhookData} from "../simple-discord-webhooks/Webhook";
 import {Resonance} from "./Resonance";
-import {handlePing, isEvent} from "./util/github";
+import {handlePing, isEvent} from "../util/github";
 
 export class GHSponsorsResonance extends Resonance {
     async resonate(req: Request): Promise<WebhookData | "ignored"> {

@@ -1,7 +1,11 @@
 import {Request} from "koa";
 
+export function getEvent(req: Request): string {
+    return req.get("X-GitHub-Event");
+}
+
 export function isEvent(req: Request, event: string): boolean {
-    return req.get("X-GitHub-Event") === event;
+    return getEvent(req) === event;
 }
 
 export function handlePing(route: string, req: Request): boolean {
