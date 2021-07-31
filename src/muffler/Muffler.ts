@@ -31,11 +31,9 @@ const presetAxios = axios.create({
  * @param config the request base
  */
 export async function executeMuffler(target: string, config: AxiosRequestConfig): Promise<void> {
-    const response = await presetAxios.request({
+    return presetAxios.request({
         ...config,
         method: "POST",
         url: `${target}?wait=true`,
     });
-    console.log(response);
-    console.log(response.data);
 }
