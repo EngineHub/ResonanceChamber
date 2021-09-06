@@ -8,7 +8,7 @@ import {readJson} from "./middleware/read-json";
 import {SECRETS} from "./secrets/webhooks";
 import {executeWebhook} from "./simple-discord-webhooks/Webhook";
 import {getSavedLatestVersions} from "./polling/MinecraftVersionManifestPoller";
-import {executeMuffler} from "./muffler/Muffler";
+import {executeOrganPipe} from "./organpipe/OrganPipe";
 
 export function startHttpServer(port: number, host: string): void {
     console.info("Creating HTTP server...");
@@ -69,20 +69,20 @@ function setupRouting(): Router {
             await safeExecuteFunction(res, () => executeWebhook(resonance.data.hookTarget, result));
         });
     });
-    SECRETS.mufflers.forEach(muffler => {
-        const route = muffler.data.route;
+    SECRETS.organPipes.forEach(organPipe => {
+        const route = organPipe.data.route;
         if (seenRoutes.has(route)) {
             throw new Error(`Duplicate route ${route}`);
         }
         webhooks.post(route, async (ctx) => {
             const res = ctx.response;
-            const result = await muffler.muffle(ctx.request);
+            const result = await organPipe.determinePipe(ctx.request);
             if (result === "ignored") {
                 // Not a call we care about
                 res.status = 204;
                 return;
             }
-            await safeExecuteFunction(res, () => executeMuffler(muffler.data.hookTarget, result));
+            await safeExecuteFunction(res, () => executeOrganPipe(organPipe.data.hookTarget, result));
         });
     });
 

@@ -1,11 +1,11 @@
 import {LevelDb} from "level";
 import {Poller} from "./polling/Poller";
 import {Resonance} from "./resonance/Resonance";
-import {Muffler} from "./muffler/Muffler";
+import {OrganPipe} from "./organpipe/OrganPipe";
 
 export interface Secrets {
     db: LevelDb<string>,
     resonances: Resonance[],
-    mufflers: Muffler[],
+    organPipes: OrganPipe[],
     pollers: Poller[],
 }
