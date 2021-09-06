@@ -13,7 +13,7 @@ export async function getOrDefault(db: LevelDb<string>, key: string, def?: unkno
     try {
         return await db.get(key);
     } catch (e) {
-        if (e.type === "NotFoundError") {
+        if ((e as {type?: string}).type === "NotFoundError") {
             return def;
         }
         throw e;

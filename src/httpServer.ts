@@ -21,10 +21,11 @@ export function startHttpServer(port: number, host: string): void {
         try {
             await next();
         } catch (err) {
+            const fixedErr = err as {statusCode?: number, status?: number, message: string};
             // will only respond with JSON
-            ctx.status = err.statusCode || err.status || 500;
+            ctx.status = fixedErr.statusCode || fixedErr.status || 500;
             ctx.body = {
-                error: err.message
+                error: fixedErr.message
             };
         }
     });
@@ -82,7 +83,7 @@ function setupRouting(): Router {
                 res.status = 204;
                 return;
             }
-            await safeExecuteFunction(res, () => executeOrganPipe(organPipe.data.hookTarget, result));
+            await safeExecuteFunction(res, () => executeOrganPipe(result));
         });
     });
 
