@@ -17,6 +17,7 @@ async function handleChange(saved: LatestVersions,
         embeds: [{
             title: `Minecraft ${field[0].toUpperCase() + field.substring(1)} ${saved[field]}`,
             description: `Minecraft **${saved[field]}** was just released!`,
+            url: `https://quiltmc.org/mc-patchnotes/#${saved[field]}`,
         }],
     };
 }
